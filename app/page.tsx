@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { instrumentSerif } from "@/app/fonts";
+import { ScrollIndicator } from "./ScrollIndicator";
 
 export default function Home() {
   return (
