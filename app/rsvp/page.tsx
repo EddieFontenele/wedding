@@ -2,7 +2,7 @@ import Image from "next/image";
 import { instrumentSerif } from "@/app/fonts";
 import { RsvpSearchClient } from "./RsvpSearchClient";
 import { WeddingTimeline } from "./WeddingTimeline";
-import { ScrollIndicator } from "./rsvp/ScrollIndicator";
+import { ScrollIndicator } from "./ScrollIndicator";
 import { ParallaxImage } from "./ParallaxImage";
 import { ScrollScaleImage } from "./ScrollScaleImage";
 import { MenuOverlay } from "./MenuOverlay";
