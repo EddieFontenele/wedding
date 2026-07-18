@@ -85,7 +85,7 @@ export function MenuOverlay() {
         force: true,
         lock: true,
         onComplete: () => {
-          ScrollTrigger.update(true);
+          ScrollTrigger.update();
         },
       });
 
