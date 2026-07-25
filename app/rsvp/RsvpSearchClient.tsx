@@ -21,7 +21,8 @@ type ConviteSelecionado = {
   nomeConvite: string;
   convidados: Convidado[];
   jaFinalizado: boolean;
-  utilizaHotelTraslado: boolean | null;
+  utilizaHotel: boolean | null;
+  utilizaTraslado: boolean | null;
 };
 
 export function RsvpSearchClient() {
@@ -97,7 +98,7 @@ export function RsvpSearchClient() {
     const { data: convite, error: conviteError } = await supabase
       .from("convites")
       .select(
-       "convite_id, qr_code_id, nome_convite, status_convite, utiliza_hotel_traslado"
+       "convite_id, qr_code_id, nome_convite, status_convite, utiliza_hotel, utiliza_traslado"
       )
       .eq("slug", slug)
       .single();
@@ -126,7 +127,8 @@ export function RsvpSearchClient() {
   nomeConvite: convite.nome_convite,
   convidados: convidados ?? [],
   jaFinalizado: convite.status_convite === "rsvp_finalizado",
-  utilizaHotelTraslado: convite.utiliza_hotel_traslado,
+  utilizaHotel: convite.utiliza_hotel,
+  utilizaTraslado: convite.utiliza_traslado,
 });
   }
 
@@ -145,9 +147,8 @@ export function RsvpSearchClient() {
           convidados={conviteSelecionado.convidados}
           qrCodeId={conviteSelecionado.qrCodeId}
           jaFinalizado={conviteSelecionado.jaFinalizado}
-          utilizaHotelTrasladoInicial={
-            conviteSelecionado.utilizaHotelTraslado
-          }
+utilizaHotelInicial={conviteSelecionado.utilizaHotel}
+utilizaTrasladoInicial={conviteSelecionado.utilizaTraslado}
         />
       </div>
     );

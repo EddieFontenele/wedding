@@ -15,41 +15,56 @@ export function RSVPForm({
   convidados,
   qrCodeId,
   jaFinalizado = false,
-  utilizaHotelTrasladoInicial = null,
+  utilizaHotelInicial = null,
+  utilizaTrasladoInicial = null,
 }: {
   nomeConvite: string;
   convidados: Convidado[];
   qrCodeId: string;
   jaFinalizado?: boolean;
-  utilizaHotelTrasladoInicial?: boolean | null;
+  utilizaHotelInicial?: boolean | null;
+  utilizaTrasladoInicial?: boolean | null;
 }) {
   const [lista, setLista] = useState(convidados);
-  const [utilizaTraslado, setUtilizaTraslado] = useState<boolean | null>(
-  utilizaHotelTrasladoInicial
+
+const [utilizaHotel, setUtilizaHotel] = useState<boolean | null>(
+  utilizaHotelInicial
+);
+
+const [utilizaTraslado, setUtilizaTraslado] = useState<boolean | null>(
+  utilizaTrasladoInicial
 );
 useEffect(() => {
-  if (!jaFinalizado || utilizaHotelTrasladoInicial !== null) return;
+  if (
+    !jaFinalizado ||
+    (utilizaHotelInicial !== null && utilizaTrasladoInicial !== null)
+  ) {
+    return;
+  }
 
-  async function carregarHotelTrasladoSalvo() {
+  async function carregarHotelETrasladoSalvos() {
     const { data, error } = await supabase
       .from("convites")
-      .select("utiliza_hotel_traslado")
+      .select("utiliza_hotel, utiliza_traslado")
       .eq("qr_code_id", qrCodeId)
       .single();
 
     if (error) {
-      console.error(
-        "Erro ao carregar hotel e traslado:",
-        error
-      );
+      console.error("Erro ao carregar hotel e traslado:", error);
       return;
     }
 
-    setUtilizaTraslado(data.utiliza_hotel_traslado);
+    setUtilizaHotel(data.utiliza_hotel);
+    setUtilizaTraslado(data.utiliza_traslado);
   }
 
-  carregarHotelTrasladoSalvo();
-}, [jaFinalizado, qrCodeId, utilizaHotelTrasladoInicial]);
+  carregarHotelETrasladoSalvos();
+}, [
+  jaFinalizado,
+  qrCodeId,
+  utilizaHotelInicial,
+  utilizaTrasladoInicial,
+]);
   const [confirmacaoFinalizada, setConfirmacaoFinalizada] =
     useState(jaFinalizado);
   const [finalizando, setFinalizando] = useState(false);
@@ -62,7 +77,9 @@ useEffect(() => {
   const alguemVai = lista.some((item) => item.confirmado === true);
 
   const todosResponderam =
-    todosResponderamLista && (!alguemVai || utilizaTraslado !== null);
+  todosResponderamLista &&
+  (!alguemVai ||
+    (utilizaHotel !== null && utilizaTraslado !== null));
 
   function atualizar(id: string, novoValor: boolean) {
     setLista((listaAtual) =>
@@ -121,9 +138,12 @@ useEffect(() => {
             .map((item) => `- ${item.nome_exibicao}`)
             .join("\n")}`
         : "",
-      utilizaTraslado !== null
-        ? `Hotel e traslado:\n- ${utilizaTraslado ? "Sim" : "Não"}`
-        : "",
+      utilizaHotel !== null
+  ? `Hotel:\n- ${utilizaHotel ? "Sim" : "Não"}`
+  : "",
+utilizaTraslado !== null
+  ? `Traslado:\n- ${utilizaTraslado ? "Sim" : "Não"}`
+  : "",
       `Total confirmado até agora:\n${totalConfirmados ?? 0} ${
         totalConfirmados === 1 ? "pessoa" : "pessoas"
       }`,
@@ -137,7 +157,8 @@ useEffect(() => {
         status_convite: "rsvp_finalizado",
         rsvp_finalizado_em: new Date().toISOString(),
         detalhes_rsvp: detalhes,
-        utiliza_hotel_traslado: utilizaTraslado,
+        utiliza_hotel: utilizaHotel,
+utiliza_traslado: utilizaTraslado,
       })
       .eq("qr_code_id", qrCodeId);
 
@@ -176,7 +197,7 @@ useEffect(() => {
       O QR Code para entrada será enviado pelo WhatsApp nos próximos dias.
     </p>
 
-    {utilizaTraslado === true && (
+    {utilizaHotel === true && (
       <p className="text-[1.1rem] leading-[1.35] text-black md:type-h5">
         Você também receberá um cupom de desconto para utilizar em estadias no
         hotel Blue Tree Garden entre os dias 30.10 e 01.11.
@@ -252,44 +273,79 @@ useEffect(() => {
               })}
 
               {alguemVai && (
-                <div className="mt-4 grid grid-cols-2 items-center gap-2 border-t border-black pt-4 md:mt-3 md:grid-cols-[1fr_120px_120px] md:pt-2">
-                  <p className="col-span-2 mb-1 text-[1.1rem] text-black md:col-span-1 md:mb-0 md:type-h5">
-                    Utilizaremos{" "}
-                    <a
-                      href="/#hospedagem"
-                      className="underline underline-offset-2 hover:no-underline"
-                    >
-                      hotel e traslado
-                    </a>
-                  </p>
+  <>
+    <div className="mt-4 grid grid-cols-2 items-center gap-2 border-t border-black pt-4 md:mt-3 md:grid-cols-[1fr_120px_120px] md:pt-2">
+      <p className="col-span-2 mb-1 text-[1.1rem] text-black md:col-span-1 md:mb-0 md:type-h5">
+        Precisaremos de{" "}
+        <a
+          href="/#hospedagem"
+          className="underline underline-offset-2 hover:no-underline"
+        >
+          hotel
+        </a>
+        ?
+      </p>
 
-                  <button
-                    type="button"
-                    aria-pressed={utilizaTraslado === true}
-                    onClick={() => setUtilizaTraslado(true)}
-                    className={`relative z-10 h-[48px] w-full touch-manipulation cursor-pointer border text-[0.95rem] transition-colors focus:outline-none md:type-h6 ${
-                      utilizaTraslado === true
-                        ? "border-black bg-black text-white"
-                        : "border-black/40 bg-transparent text-black hover:bg-black/5"
-                    }`}
-                  >
-                    Sim
-                  </button>
+      <button
+        type="button"
+        aria-pressed={utilizaHotel === true}
+        onClick={() => setUtilizaHotel(true)}
+        className={`relative z-10 h-[48px] w-full touch-manipulation cursor-pointer border text-[0.95rem] transition-colors focus:outline-none md:type-h6 ${
+          utilizaHotel === true
+            ? "border-black bg-black text-white"
+            : "border-black/40 bg-transparent text-black hover:bg-black/5"
+        }`}
+      >
+        Sim
+      </button>
 
-                  <button
-                    type="button"
-                    aria-pressed={utilizaTraslado === false}
-                    onClick={() => setUtilizaTraslado(false)}
-                    className={`relative z-10 h-[48px] w-full touch-manipulation cursor-pointer border text-[0.95rem] transition-colors focus:outline-none md:type-h6 ${
-                      utilizaTraslado === false
-                        ? "border-black bg-black text-white"
-                        : "border-black/40 bg-transparent text-black hover:bg-black/5"
-                    }`}
-                  >
-                    Não
-                  </button>
-                </div>
-              )}
+      <button
+        type="button"
+        aria-pressed={utilizaHotel === false}
+        onClick={() => setUtilizaHotel(false)}
+        className={`relative z-10 h-[48px] w-full touch-manipulation cursor-pointer border text-[0.95rem] transition-colors focus:outline-none md:type-h6 ${
+          utilizaHotel === false
+            ? "border-black bg-black text-white"
+            : "border-black/40 bg-transparent text-black hover:bg-black/5"
+        }`}
+      >
+        Não
+      </button>
+    </div>
+
+    <div className="grid grid-cols-2 items-center gap-2 md:grid-cols-[1fr_120px_120px]">
+      <p className="col-span-2 mb-1 text-[1.1rem] text-black md:col-span-1 md:mb-0 md:type-h5">
+        Utilizaremos o traslado?
+      </p>
+
+      <button
+        type="button"
+        aria-pressed={utilizaTraslado === true}
+        onClick={() => setUtilizaTraslado(true)}
+        className={`relative z-10 h-[48px] w-full touch-manipulation cursor-pointer border text-[0.95rem] transition-colors focus:outline-none md:type-h6 ${
+          utilizaTraslado === true
+            ? "border-black bg-black text-white"
+            : "border-black/40 bg-transparent text-black hover:bg-black/5"
+        }`}
+      >
+        Sim
+      </button>
+
+      <button
+        type="button"
+        aria-pressed={utilizaTraslado === false}
+        onClick={() => setUtilizaTraslado(false)}
+        className={`relative z-10 h-[48px] w-full touch-manipulation cursor-pointer border text-[0.95rem] transition-colors focus:outline-none md:type-h6 ${
+          utilizaTraslado === false
+            ? "border-black bg-black text-white"
+            : "border-black/40 bg-transparent text-black hover:bg-black/5"
+        }`}
+      >
+        Não
+      </button>
+    </div>
+  </>
+)}
             </div>
           </div>
         </div>
