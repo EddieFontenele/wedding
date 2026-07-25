@@ -11,11 +11,13 @@ type Convidado = {
 };
 
 export function RSVPForm({
+  nomeConvite,
   convidados,
   qrCodeId,
   jaFinalizado = false,
   utilizaHotelTrasladoInicial = null,
 }: {
+  nomeConvite: string;
   convidados: Convidado[];
   qrCodeId: string;
   jaFinalizado?: boolean;
@@ -157,7 +159,7 @@ useEffect(() => {
   if (confirmacaoFinalizada) {
 
     const primeiroNome =
-    lista[0]?.nome_exibicao.trim().split(/\s+/)[0] ?? "";
+    nomeConvite.trim().split(/\s+/)[0] ?? "";
 
     const nomesConfirmados = lista.filter(
       (item) => item.confirmado === true
