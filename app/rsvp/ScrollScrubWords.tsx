@@ -18,18 +18,16 @@ type MeasuredWord = {
 gsap.registerPlugin(ScrollTrigger);
 
 const LINE_DURATION = 0.85;
-const LINE_OFFSET = 0.22;
+const LINE_OFFSET = 0.32;
 const LINE_ROTATION = 5;
 
 const LETTER_STAGGER = 0.018;
 const LETTER_DURATION = 0.42;
 const LETTER_ALPHA_DELAY = 0.02;
 
-const REVEAL_SCROLL_DISTANCE = 900;
-const PARALLAX_SPEED = 0.6;
+const MOBILE_TEXT_SCROLL_SPEED = 0.7;
+const DESKTOP_TEXT_SCROLL_SPEED = 0.6;
 
-const DISSOLVE_START_PROGRESS = 0.9;
-const DISSOLVE_END_PROGRESS = 1;
 
 export function ScrollScrubWords({
   text,
@@ -87,7 +85,19 @@ export function ScrollScrubWords({
         []
       );
 
-      setLines(nextLines);
+      setLines((currentLines) => {
+  const currentSignature = currentLines
+    .map((line) => line.map((item) => item.index).join(","))
+    .join("|");
+
+  const nextSignature = nextLines
+    .map((line) => line.map((item) => item.index).join(","))
+    .join("|");
+
+  return currentSignature === nextSignature
+    ? currentLines
+    : nextLines;
+});
     }
 
     measureLines(measureElement);
@@ -104,48 +114,61 @@ export function ScrollScrubWords({
     };
   }, [words]);
 
-  useEffect(() => {
-    const root = rootRef.current;
+useEffect(() => {
+  const root = rootRef.current;
 
-    if (!root || !lines.length) return;
+  if (!root || !lines.length) return;
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
 
-    const parallaxElement = root.querySelector<HTMLElement>(
-      "[data-parallax-text]"
-    );
+  const parallaxElement = root.querySelector<HTMLElement>(
+    "[data-parallax-text]"
+  );
 
-    const lineElements = gsap.utils.toArray<HTMLElement>(
-      root.querySelectorAll("[data-scroll-line]")
-    );
+  const lineElements = gsap.utils.toArray<HTMLElement>(
+    root.querySelectorAll("[data-scroll-line]")
+  );
 
-    const letterElements = gsap.utils.toArray<HTMLElement>(
-      root.querySelectorAll("[data-scroll-letter]")
-    );
+  const letterElements = gsap.utils.toArray<HTMLElement>(
+    root.querySelectorAll("[data-scroll-letter]")
+  );
 
-    if (!parallaxElement) return;
+  if (!parallaxElement) return;
 
-    if (prefersReducedMotion) {
-      gsap.set(parallaxElement, {
-        y: 0,
-        opacity: 1,
-      });
+  if (prefersReducedMotion) {
+    gsap.set(parallaxElement, {
+      y: 0,
+      opacity: 1,
+    });
 
-      gsap.set(lineElements, {
-        yPercent: 0,
-        rotation: 0,
-      });
+    gsap.set(lineElements, {
+      yPercent: 0,
+      rotation: 0,
+    });
 
-      gsap.set(letterElements, {
-        opacity: 1,
-      });
+    gsap.set(letterElements, {
+      opacity: 1,
+    });
 
-      return;
-    }
+    return;
+  }
 
-    const context = gsap.context(() => {
+  let context: gsap.Context | null = null;
+  let initialized = false;
+  let cancelled = false;
+
+  const initializeAnimations = async () => {
+    if (initialized || cancelled) return;
+
+    initialized = true;
+
+    await document.fonts.ready;
+
+    if (cancelled) return;
+
+    context = gsap.context(() => {
       gsap.set(parallaxElement, {
         y: 0,
         opacity: 1,
@@ -161,35 +184,72 @@ export function ScrollScrubWords({
         opacity: 0,
       });
 
+      const setParallaxY = gsap.quickSetter(
+        parallaxElement,
+        "y",
+        "px"
+      );
+
+      const setParallaxOpacity = gsap.quickSetter(
+        parallaxElement,
+        "opacity"
+      );
+
+      const updateParallax = (trigger: ScrollTrigger) => {
+      const rootTop =
+        root.getBoundingClientRect().top + trigger.scroll();
+
+      const parallaxStart = rootTop - window.innerHeight;
+
+      const distanceAfterStart = Math.max(
+        0,
+        trigger.scroll() - parallaxStart
+      );
+
+      const activeScrollSpeed =
+        window.innerWidth < 768
+          ? MOBILE_TEXT_SCROLL_SPEED
+          : DESKTOP_TEXT_SCROLL_SPEED;
+
+      setParallaxY(
+  distanceAfterStart * (1 - activeScrollSpeed)
+);
+
+      const currentTop = parallaxElement.getBoundingClientRect().top;
+
+      const fadeStart = window.innerHeight * 0.07;
+      const fadeEnd = 0;
+
+      const opacity = gsap.utils.clamp(
+        0,
+        1,
+        (currentTop - fadeEnd) / (fadeStart - fadeEnd)
+      );
+
+      setParallaxOpacity(opacity);
+    };
+
       ScrollTrigger.create({
-        trigger: root,
-        start: "top bottom",
-        end: "bottom -20%",
-        scrub: true,
+        start: 0,
+        end: "max",
         invalidateOnRefresh: true,
+
         onUpdate: (self) => {
-          const scrollDistance = self.end - self.start;
-          const compensation = scrollDistance * (1 - PARALLAX_SPEED);
+          updateParallax(self);
+        },
 
-          const dissolveProgress = gsap.utils.clamp(
-            0,
-            1,
-            (self.progress - DISSOLVE_START_PROGRESS) /
-              (DISSOLVE_END_PROGRESS - DISSOLVE_START_PROGRESS)
-          );
-
-          gsap.set(parallaxElement, {
-            y: self.progress * compensation,
-            opacity: 1 - dissolveProgress,
-          });
+        onRefresh: (self) => {
+          updateParallax(self);
         },
       });
 
       const revealTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: root,
-          start: "top 90%",
-          end: `+=${REVEAL_SCROLL_DISTANCE}`,
+          start: () =>
+            window.innerWidth < 768 ? "top 72%" : "top 85%",
+          end: () =>
+            window.innerWidth < 768 ? "top 28%" : "top 35%",
           scrub: true,
           invalidateOnRefresh: true,
         },
@@ -203,10 +263,10 @@ export function ScrollScrubWords({
             lineElement.querySelectorAll("[data-scroll-letter]")
           )
           .sort((letterA, letterB) => {
-            const aLeft = letterA.getBoundingClientRect().left;
-            const bLeft = letterB.getBoundingClientRect().left;
-
-            return aLeft - bLeft;
+            return (
+              letterA.getBoundingClientRect().left -
+              letterB.getBoundingClientRect().left
+            );
           });
 
         revealTimeline.to(
@@ -231,12 +291,35 @@ export function ScrollScrubWords({
           startTime + LETTER_ALPHA_DELAY
         );
       });
-    }, root);
 
-    return () => {
-      context.revert();
-    };
-  }, [lines]);
+      ScrollTrigger.refresh();
+    }, root);
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+
+      if (!entry?.isIntersecting) return;
+
+      observer.disconnect();
+      initializeAnimations();
+    },
+    {
+      root: null,
+      rootMargin: "120% 0px 120% 0px",
+      threshold: 0,
+    }
+  );
+
+  observer.observe(root);
+
+  return () => {
+    cancelled = true;
+    observer.disconnect();
+    context?.revert();
+  };
+}, [lines]);
 
   return (
     <TagName

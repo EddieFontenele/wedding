@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabase";
 
 type Convidado = {
@@ -14,13 +14,40 @@ export function RSVPForm({
   convidados,
   qrCodeId,
   jaFinalizado = false,
+  utilizaHotelTrasladoInicial = null,
 }: {
   convidados: Convidado[];
   qrCodeId: string;
   jaFinalizado?: boolean;
+  utilizaHotelTrasladoInicial?: boolean | null;
 }) {
   const [lista, setLista] = useState(convidados);
-  const [utilizaTraslado, setUtilizaTraslado] = useState<boolean | null>(null);
+  const [utilizaTraslado, setUtilizaTraslado] = useState<boolean | null>(
+  utilizaHotelTrasladoInicial
+);
+useEffect(() => {
+  if (!jaFinalizado || utilizaHotelTrasladoInicial !== null) return;
+
+  async function carregarHotelTrasladoSalvo() {
+    const { data, error } = await supabase
+      .from("convites")
+      .select("utiliza_hotel_traslado")
+      .eq("qr_code_id", qrCodeId)
+      .single();
+
+    if (error) {
+      console.error(
+        "Erro ao carregar hotel e traslado:",
+        error
+      );
+      return;
+    }
+
+    setUtilizaTraslado(data.utiliza_hotel_traslado);
+  }
+
+  carregarHotelTrasladoSalvo();
+}, [jaFinalizado, qrCodeId, utilizaHotelTrasladoInicial]);
   const [confirmacaoFinalizada, setConfirmacaoFinalizada] =
     useState(jaFinalizado);
   const [finalizando, setFinalizando] = useState(false);
@@ -138,20 +165,28 @@ export function RSVPForm({
 
     return (
       <div className="flex min-h-screen w-full flex-col items-center justify-center opacity-0 animate-[fadeIn_450ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
-        <p className="max-w-[560px] text-center text-[1.1rem] leading-[1.35] text-black md:type-h5">
-          Obrigado{primeiroNome ? `, ${primeiroNome}` : ""}.
-          <br />
-          {nomesConfirmados.length > 0 ? (
-            <>
-              Sua resposta foi registrada.
-              <br />
-              O QR Code para entrada será enviado pelo WhatsApp nos próximos
-              dias.
-            </>
-          ) : (
-            <>Sua resposta foi registrada. Sentiremos sua falta!</>
-          )}
-        </p>
+        {nomesConfirmados.length > 0 ? (
+  <div className="mx-auto flex w-full max-w-[480px] flex-col gap-6 px-4 text-center md:px-0">
+    <p className="text-[1.1rem] leading-[1.35] text-black md:type-h5">
+      Obrigado{primeiroNome ? `, ${primeiroNome}` : ""}. Sua resposta foi
+      registrada.
+      <br />
+      O QR Code para entrada será enviado pelo WhatsApp nos próximos dias.
+    </p>
+
+    {utilizaTraslado === true && (
+      <p className="text-[1.1rem] leading-[1.35] text-black md:type-h5">
+        Você também receberá um cupom de desconto para utilizar em estadias no
+        hotel Blue Tree Garden entre os dias 30.10 e 01.11.
+      </p>
+    )}
+  </div>
+) : (
+  <p className="max-w-[560px] text-center text-[1.1rem] leading-[1.35] text-black md:type-h5">
+    Obrigado{primeiroNome ? `, ${primeiroNome}` : ""}. Sua resposta foi
+    registrada. Sentiremos sua falta!
+  </p>
+)}
       </div>
     );
   }

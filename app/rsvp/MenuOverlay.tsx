@@ -122,8 +122,8 @@ export function MenuOverlay() {
     open ? "pointer-events-auto" : "pointer-events-none"
   }`}
 >
-  <nav className="grid min-h-screen grid-cols-12 gap-2 px-0 md:px-6">
-    <div className="col-start-3 col-span-8 flex min-h-screen flex-col items-center justify-center gap-3 text-center md:gap-4">
+  <nav className="grid min-h-[100svh] grid-cols-12 gap-2 px-0 md:min-h-screen md:px-6">
+    <div className="col-start-3 col-span-8 flex min-h-[100svh] flex-col items-center justify-center gap-3 text-center md:min-h-screen md:gap-4">
       {menuItems.map((item, index) => (
         <motion.a
   key={item.href}

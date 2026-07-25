@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type ParallaxImageProps = {
   src: string;
@@ -24,61 +24,77 @@ export function ParallaxImage({
   speed = 28,
   innerSpeed = 44,
 }: ParallaxImageProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [y, setY] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let frame = 0;
+    let animationFrame = 0;
+    let targetProgress = 0;
+    let currentProgress = 0;
 
-    function update() {
-      if (!ref.current) return;
+    function calculateTarget() {
+      const container = containerRef.current;
 
-      const rect = ref.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const progress =
-        (rect.top + rect.height / 2 - windowHeight / 2) / windowHeight;
+      if (!container) return;
 
-      setY(progress);
+      const rect = container.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      targetProgress =
+        (rect.top + rect.height / 2 - viewportHeight / 2) / viewportHeight;
     }
 
-    function onScroll() {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
+    function animate() {
+      const outer = outerRef.current;
+      const inner = innerRef.current;
+
+      if (!outer || !inner) return;
+
+      currentProgress += (targetProgress - currentProgress) * 0.1;
+
+      outer.style.transform = "translate3d(0, 0, 0)";
+
+      inner.style.transform = `translate3d(0, ${
+        currentProgress * innerSpeed
+      }px, 0) scale(1.14)`;
+
+      animationFrame = requestAnimationFrame(animate);
     }
 
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", update);
+    calculateTarget();
+    currentProgress = targetProgress;
+    animate();
+
+    window.addEventListener("scroll", calculateTarget, { passive: true });
+    window.addEventListener("resize", calculateTarget);
 
     return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", update);
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener("scroll", calculateTarget);
+      window.removeEventListener("resize", calculateTarget);
     };
-  }, []);
+  }, [speed, innerSpeed]);
 
   return (
-    <div
-      ref={ref}
-      style={{ transform: `translateY(${y * speed}px)` }}
-      className={className}
-    >
-      <div className="overflow-hidden">
-        <Image
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          style={{
-            transform: `translateY(${y * innerSpeed}px) scale(1.14)`,
-          }}
-          className="h-auto w-full object-cover will-change-transform"
-        />
-      </div>
+    <div ref={containerRef} className={className}>
+      <div ref={outerRef} className="will-change-transform">
+        <div className="overflow-hidden">
+          <div ref={innerRef} className="will-change-transform">
+            <Image
+              src={src}
+              alt={alt}
+              width={width}
+              height={height}
+              className="h-auto w-full object-cover"
+            />
+          </div>
+        </div>
 
-      {caption ? (
-        <p className="mt-2 type-body-2 text-black/50">{caption}</p>
-      ) : null}
+        {caption ? (
+          <p className="mt-2 type-body-2 text-black/50">{caption}</p>
+        ) : null}
+      </div>
     </div>
   );
 }

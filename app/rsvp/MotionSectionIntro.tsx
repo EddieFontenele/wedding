@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -9,23 +9,25 @@ type MotionSectionIntroProps = {
   title: string;
   subtitle?: string;
   className?: string;
+  children?: ReactNode;
+  fitMobileViewport?: boolean;
 };
 
 gsap.registerPlugin(ScrollTrigger);
 
-const INTRO_PARALLAX_Y = 220;
+const INTRO_PARALLAX_Y = 120;
 
 const PARALLAX_START_PROGRESS = 0.15;
 const PARALLAX_END_PROGRESS = 0.95;
 
-const ENTRY_EYEBROW_START = 0.1;
-const ENTRY_EYEBROW_END = 0.28;
+const ENTRY_EYEBROW_START = 0.2;
+const ENTRY_EYEBROW_END = 0.4;
 
-const ENTRY_TITLE_START = 0.18;
-const ENTRY_TITLE_END = 0.42;
+const ENTRY_TITLE_START = 0.3;
+const ENTRY_TITLE_END = 0.4;
 
-const ENTRY_SUBTITLE_START = 0.34;
-const ENTRY_SUBTITLE_END = 0.58;
+const ENTRY_SUBTITLE_START = 0.4;
+const ENTRY_SUBTITLE_END = 0.45;
 
 const EXIT_START_PROGRESS = 0.82;
 const EXIT_END_PROGRESS = 1;
@@ -39,7 +41,9 @@ export function MotionSectionIntro({
   title,
   subtitle,
   className = "",
-}: MotionSectionIntroProps) {
+  children,
+    fitMobileViewport = false,
+  }: MotionSectionIntroProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -61,6 +65,10 @@ export function MotionSectionIntro({
       "[data-intro-subtitle]"
     );
 
+    const childrenElement = root.querySelector<HTMLElement>(
+      "[data-intro-children]"
+    );
+
     if (!parallaxElement || !eyebrowElement || !titleElement) return;
 
     const prefersReducedMotion = window.matchMedia(
@@ -76,6 +84,7 @@ export function MotionSectionIntro({
 
       return;
     }
+
 
     const context = gsap.context(() => {
       gsap.set(parallaxElement, {
@@ -104,10 +113,18 @@ export function MotionSectionIntro({
         });
       }
 
+      if (childrenElement) {
+        gsap.set(childrenElement, {
+          y: SUBTITLE_Y,
+          opacity: 0,
+          visibility: "visible",
+        });
+      }
+
       ScrollTrigger.create({
         trigger: root,
         start: "top bottom",
-        end: "bottom top",
+        end: fitMobileViewport ? "bottom bottom" : "bottom top",
         scrub: true,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
@@ -132,10 +149,7 @@ export function MotionSectionIntro({
             ENTRY_SUBTITLE_END
           );
 
-          const exitProgress = getProgress(
-            EXIT_START_PROGRESS,
-            EXIT_END_PROGRESS
-          );
+          const childrenEntryProgress = subtitleEntryProgress;
 
           const parallaxProgress = getProgress(
             PARALLAX_START_PROGRESS,
@@ -144,13 +158,13 @@ export function MotionSectionIntro({
 
           const parallaxY = gsap.utils.interpolate(
             -INTRO_PARALLAX_Y,
-            INTRO_PARALLAX_Y,
+            0,
             parallaxProgress
           );
 
           gsap.set(parallaxElement, {
             y: parallaxY,
-            opacity: 1 - exitProgress,
+            opacity: 1,
           });
 
           gsap.set(eyebrowElement, {
@@ -167,6 +181,13 @@ export function MotionSectionIntro({
             gsap.set(subtitleElement, {
               y: gsap.utils.interpolate(SUBTITLE_Y, 0, subtitleEntryProgress),
               opacity: subtitleEntryProgress,
+            });
+          }
+
+          if (childrenElement) {
+            gsap.set(childrenElement, {
+              y: gsap.utils.interpolate(SUBTITLE_Y, 0, childrenEntryProgress),
+              opacity: childrenEntryProgress,
             });
           }
         },
@@ -193,12 +214,17 @@ export function MotionSectionIntro({
       window.removeEventListener("load", refreshAfterLoad);
       context.revert();
     };
-  }, []);
+  }, [fitMobileViewport]);
 
   return (
     <div
       ref={rootRef}
-      className={`relative grid min-h-[140vh] grid-cols-12 gap-2 ${className}`}
+      className={`relative grid grid-cols-12 gap-2 ${
+        className ||
+        fitMobileViewport
+          ? "min-h-[100svh] md:min-h-screen"
+          : "min-h-[140vh]"
+      }`}
     >
       <span
         data-page-anchor
@@ -208,16 +234,21 @@ export function MotionSectionIntro({
 
       <div
         data-intro-parallax
-        className="col-start-4 col-span-6 flex min-h-screen flex-col items-center justify-center text-center will-change-transform"
+        className={`col-start-3 col-span-8 mx-auto flex w-full max-w-[640px] flex-col items-center justify-center text-center will-change-transform ${
+          fitMobileViewport ? "min-h-[100svh] md:min-h-screen" : "min-h-screen"
+        }`}
       >
         <div data-intro-content>
-          <h4 data-intro-eyebrow className="type-h6 text-black">
+          <h4
+            data-intro-eyebrow
+            className="text-[1.25rem] leading-none text-black md:text-[clamp(1.25rem,1.6vw,2rem)]"
+          >
             {eyebrow}
           </h4>
 
           <h2
             data-intro-title
-            className="mt-8 font-cheyra text-[3.75rem] leading-[0.9] text-black md:mt-12 md:text-[9rem]"
+            className="mt-8 font-cheyra text-[3.75rem] leading-[0.88] text-black md:mt-10 md:text-[clamp(8rem,12vw,14rem)]"
           >
             {title}
           </h2>
@@ -226,10 +257,19 @@ export function MotionSectionIntro({
             <div className="mx-auto mt-8 w-full md:w-2/3">
               <h3
                 data-intro-subtitle
-                className="text-[1.25rem] leading-[1.35] text-black md:type-h3"
+                className="text-[1.25rem] leading-[1.35] text-black md:text-[1.8rem]"
               >
                 {subtitle}
               </h3>
+            </div>
+          ) : null}
+
+              {children ? (
+                <div
+                  data-intro-children
+                  className="mt-[40px] flex justify-center"
+                >
+              {children}
             </div>
           ) : null}
         </div>

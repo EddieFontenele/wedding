@@ -9,6 +9,7 @@ import { MenuOverlay } from "./MenuOverlay";
 import { MotionTextBlock } from "./MotionTextBlock";
 import { MotionSectionIntro } from "./MotionSectionIntro";
 import { SmoothAnchorLink } from "./SmoothAnchorLink";
+import { CenteredSticky } from "./CenteredSticky";
 
 
 export default function RSVPBuscaPage() {
@@ -44,7 +45,7 @@ export default function RSVPBuscaPage() {
 
       <section
         id="inicio"
-        className="relative grid min-h-screen grid-cols-12 gap-2 px-0 md:px-6"
+        className="relative grid min-h-[100svh] grid-cols-12 gap-2 px-0 md:min-h-screen md:px-6"
       >
         <span
           data-page-anchor
@@ -52,7 +53,7 @@ export default function RSVPBuscaPage() {
           className="pointer-events-none absolute left-0 top-1/2 h-px w-px"
         />
 
-        <div className="col-start-3 col-span-8 flex min-h-screen flex-col items-center justify-center text-center md:col-start-2 md:col-span-10">
+        <div className="col-start-3 col-span-8 flex min-h-[100svh] flex-col items-center justify-center text-center md:col-start-2 md:col-span-10 md:min-h-screen">
           <Image
             src="/logo_evento_2.png"
             alt="Juliana e Eduardo"
@@ -71,7 +72,7 @@ export default function RSVPBuscaPage() {
 >
   Confirme sua presença
 </SmoothAnchorLink>{" "}
-            até o dia 20.08
+            até o dia 10.09
           </p>
         </div>
       </section>
@@ -95,13 +96,13 @@ export default function RSVPBuscaPage() {
 <MotionSectionIntro
   eyebrow="Local"
   title="CHÁCARA VENEZA"
-  subtitle="No dia 31.10 iremos nos casar na Chácara Veneza, em Bauru. Se você recebeu um convite, confirme sua presença até o dia 20.08."
+  subtitle="Um charmoso espaço cercado pela natureza, no interior de São Paulo, onde celebraremos o nosso casamento ao pôr do sol."
 />
 
 <div className="px-0 pb-32 md:px-6">
   <div className="mb-[-160px] grid grid-cols-12 gap-2 md:mb-[-420px]">
     <ScrollScaleImage
-      src="/local-01.jpg"
+      src="/local-01-v2.png"
       alt="Chácara Veneza"
       width={1600}
       height={1000}
@@ -111,6 +112,7 @@ export default function RSVPBuscaPage() {
       mobileEndScale={0.8}
       moveY={220}
       innerMoveY={160}
+      lockMobileViewport
       className="col-start-2 col-span-10"
     />
   </div>
@@ -172,11 +174,11 @@ export default function RSVPBuscaPage() {
   </div>
 </div>
 
-<MotionTextBlock text="No dia 31.10 iremos nos casar na Chácara Veneza, em Bauru. Se você recebeu um convite, confirme sua presença até o dia 20.08." />
+<MotionTextBlock text="Espaço de fácil acesso, com infraestrutura completa, amplas áreas verdes, salão climatizado, espaço kids e portaria com controle de acesso." />
 
 <div className="grid grid-cols-12 gap-2 px-0 md:px-6">
   <ScrollScaleImage
-    src="/local-06.jpg"
+    src="/local-06-v2.png"
     alt="Vista ampla da Chácara Veneza"
     width={1920}
     height={1080}
@@ -189,27 +191,26 @@ export default function RSVPBuscaPage() {
   />
 </div>
 
-<div className="grid grid-cols-12 gap-2 px-0 py-24 md:min-h-[220vh] md:px-6 md:py-32">
-  <div className="col-start-3 col-span-8 md:col-start-3 md:col-span-2">
-    <div className="md:sticky md:top-0 md:flex md:h-screen md:items-center">
+<div className="grid grid-cols-12 gap-2 px-0 py-24 md:px-6 md:pb-32 md:pt-[220px]">
+  <div className="col-start-3 col-span-8 md:col-start-3 md:col-span-2 md:mt-[220px]">
+    <CenteredSticky>
       <div>
-        <p className="text-[1.7rem] leading-[1.15] text-black md:type-h5">
-          Se você vier de São Paulo, sugerimos que pegue a BR-116 em direção a
-          Campinas Paulista. A viagem dura por volta de 3h40.
-        </p>
+            <p className="text-[1.7rem] leading-[1.15] text-black md:type-h5">
+              Se você vier de São Paulo, sugerimos que pegue a BR-116 em direção a
+              Campinas Paulista. A viagem dura por volta de 3h40.
+            </p>
 
-        <a
-          href="https://maps.app.goo.gl/7EauPmeb7UtEgQQk9"
-          target="_blank"
-          rel="noreferrer"
-          className="mt-8 inline-block underline underline-offset-4 type-body-2 text-black"
-        >
-          Ver no Google Maps
-        </a>
-      </div>
+            <a
+              href="https://maps.app.goo.gl/7EauPmeb7UtEgQQk9"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-8 inline-block underline underline-offset-4 type-body-2 text-black"
+            >
+              Ver no Google Maps
+            </a>
+              </div>
+    </CenteredSticky>
     </div>
-  </div>
-
   <div className="col-start-1 col-span-12 mt-20 flex flex-col gap-20 md:col-start-6 md:col-span-6 md:mt-[220px] md:gap-40">
     <Image
       src="/local-map.png"
@@ -221,7 +222,7 @@ export default function RSVPBuscaPage() {
 
     <div className="hidden md:block">
       <ParallaxImage
-        src="/local-07.jpg"
+        src="/local-07-v3.jpg"
         alt="Entrada da cerimônia na Chácara Veneza"
         width={900}
         height={520}
@@ -239,13 +240,13 @@ export default function RSVPBuscaPage() {
   <MotionSectionIntro
     eyebrow="Hospedagem"
     title="HOTEL E TRASLADO"
-    subtitle="Para quem vem de fora, teremos uma opção de hospedagem e traslado em Bauru."
+    subtitle="Para quem vem de fora, teremos uma opção de hospedagem e traslado em Bauru. O Blue Tree Garden fica na entrada da cidade e conta com um cupom de desconto para convidados."
   />
 
   <div className="px-0 pb-32 md:px-6">
     <div className="mb-[-160px] grid grid-cols-12 gap-2 md:mb-[-420px]">
       <ScrollScaleImage
-        src="/hotel-01.jpg"
+        src="/hotel-01.png"
         alt="Hotel indicado para os convidados"
         width={1600}
         height={1000}
@@ -255,14 +256,15 @@ export default function RSVPBuscaPage() {
         mobileEndScale={0.8}
         moveY={220}
         innerMoveY={160}
+        lockMobileViewport
         className="col-start-2 col-span-10"
       />
     </div>
 
-    <div className="mt-[120px] grid grid-cols-12 gap-2">
+    <div className="mt-[172px] grid grid-cols-12 gap-2">
       <div className="col-start-9 col-span-3 md:col-start-8 md:col-span-2">
         <ParallaxImage
-          src="/hotel-02.jpg"
+          src="/hotel-02-v2.jpg"
           alt="Área comum do hotel"
           width={520}
           height={680}
@@ -276,7 +278,7 @@ export default function RSVPBuscaPage() {
     <div className="mt-2 grid grid-cols-12 gap-2 md:mt-[40px]">
       <div className="col-start-1 col-span-6 md:col-start-3 md:col-span-4">
         <ParallaxImage
-          src="/hotel-03.jpg"
+          src="/hotel-03-v2.jpg"
           alt="Quarto do hotel"
           width={520}
           height={420}
@@ -316,11 +318,11 @@ export default function RSVPBuscaPage() {
     </div>
   </div>
 
-<MotionTextBlock text="Vamos concentrar as informações de hospedagem e traslado por aqui, para que todo mundo consiga se organizar com calma antes do casamento." />
+<MotionTextBlock text="Os convidados que escolherem ficar no hotel receberão um cupom de desconto para utilizar nas reservas de hospedagem entre os dias 30 de outubro e 1º de novembro de 2026." />
 
   <div className="grid grid-cols-12 gap-2 px-0 md:px-6">
     <ScrollScaleImage
-      src="/hotel-06.jpg"
+      src="/hotel-06-v3.png"
       alt="Vista ampla do hotel"
       width={1920}
       height={1080}
@@ -335,10 +337,21 @@ export default function RSVPBuscaPage() {
 
 <div className="grid grid-cols-12 gap-x-2 gap-y-20 px-0 py-24 md:gap-y-2 md:px-6 md:py-32">
   <div className="col-start-3 col-span-8 md:col-start-3 md:col-span-2 md:flex md:items-center">
-    <p className="text-[1.7rem] leading-[1.15] text-black md:type-h5">
-      O hotel ficará em Bauru. Mais perto da data, enviaremos endereço,
-      horários de saída e retorno do traslado.
-    </p>
+  <div>
+  <p className="text-[1.7rem] leading-[1.15] text-black md:type-h5">
+    Haverá traslado de ida e volta entre o hotel e o local do casamento.
+    Mais próximo da data, compartilharemos os horários e demais informações.
+  </p>
+
+  <a
+    href="https://maps.app.goo.gl/J5CSnG23RUesVTcx9"
+    target="_blank"
+    rel="noreferrer"
+    className="mt-8 inline-block underline underline-offset-4 type-body-2 text-black"
+  >
+    Ver no Google Maps
+  </a>
+</div>
   </div>
 
   <div className="col-start-1 col-span-12 md:col-start-6 md:col-span-6">
@@ -416,7 +429,7 @@ export default function RSVPBuscaPage() {
         {/* DRESS CODE — DESKTOP RESTAURADO */}
         <div className="hidden min-h-screen grid-cols-12 gap-2 px-6 py-24 md:grid">
           <div className="col-start-1 col-span-12 flex min-h-screen items-center">
-            <div className="grid w-full grid-cols-12 gap-2">
+            <div className="mx-auto grid w-full max-w-[1280px] grid-cols-12 gap-2">
               <div className="col-start-5 col-span-4 text-center">
                 <p className="type-h5 text-black">
                   Dress Code:
@@ -483,7 +496,7 @@ export default function RSVPBuscaPage() {
 
     <div className="col-start-1 col-span-12 mt-3">
       <Image
-        src="/pedimos.png"
+        src="/pedimos-v2.png"
         alt="Noivos dançando"
         width={520}
         height={558}
@@ -494,67 +507,61 @@ export default function RSVPBuscaPage() {
     <div className="col-start-3 col-span-8 mt-10 flex flex-col gap-10 text-left">
       <div>
         <h3 className="text-[1.25rem] text-black">
-          Cerimônia sem celulares
+          Confirme sua presença
         </h3>
 
         <p className="mt-2 text-[0.95rem] leading-[1.35] text-black">
-          Durante a cerimônia, pedimos que os celulares fiquem no silencioso
-          e guardados. Sem fotos ou vídeos nesse momento.
+          Sua confirmação é muito importante e o convite é pessoal e intransferível. Não se esqueça de apresentar o QR code na entrada para identificação e acesso ao local.
         </p>
       </div>
 
       <div>
         <h3 className="text-[1.25rem] text-black">
-          Cerimônia sem celulares
+          Branco é a cor da noiva
         </h3>
 
         <p className="mt-2 text-[0.95rem] leading-[1.35] text-black">
-          Durante a cerimônia, pedimos que os celulares fiquem no silencioso
-          e guardados. Sem fotos ou vídeos nesse momento.
+          Para tornar este momento ainda mais especial, pedimos que evitem trajes em tons de branco, off-white e similares.
         </p>
       </div>
 
       <div>
         <h3 className="text-[1.25rem] text-black">
-          Cerimônia sem celulares
+          Chegue no horário
         </h3>
 
         <p className="mt-2 text-[0.95rem] leading-[1.35] text-black">
-          Durante a cerimônia, pedimos que os celulares fiquem no silencioso
-          e guardados. Sem fotos ou vídeos nesse momento.
+          Planeje-se para chegar com antecedência e aproveitar cada momento da celebração desde o início. Preparamos uma recepção especial com mesa de frios, welcome drinks e uma banda de jazz ao vivo para receber vocês.
         </p>
       </div>
 
       <div>
         <h3 className="text-[1.25rem] text-black">
-          Cerimônia sem celulares
+          Mesa de doces
         </h3>
 
         <p className="mt-2 text-[0.95rem] leading-[1.35] text-black">
-          Durante a cerimônia, pedimos que os celulares fiquem no silencioso
-          e guardados. Sem fotos ou vídeos nesse momento.
+          Os doces serão liberados junto com o bolo após o jantar. Pedimos que aguardem esse momento antes de se servirem.
         </p>
       </div>
 
       <div>
         <h3 className="text-[1.25rem] text-black">
-          Cerimônia sem celulares
+          Celular no silencioso
         </h3>
 
         <p className="mt-2 text-[0.95rem] leading-[1.35] text-black">
-          Durante a cerimônia, pedimos que os celulares fiquem no silencioso
-          e guardados. Sem fotos ou vídeos nesse momento.
+          Pedimos que mantenha o celular no silencioso e evite filmagens durante a cerimônia. Nossa equipe de fotógrafos estará presente para registrar todos os momentos.
         </p>
       </div>
 
       <div>
         <h3 className="text-[1.25rem] text-black">
-          Cerimônia sem celulares
+          Decoração
         </h3>
 
         <p className="mt-2 text-[0.95rem] leading-[1.35] text-black">
-          Durante a cerimônia, pedimos que os celulares fiquem no silencioso
-          e guardados. Sem fotos ou vídeos nesse momento.
+          Cada detalhe foi pensado com muito carinho e faz parte da ambientação da festa. Pedimos que os itens decorativos permaneçam no local.
         </p>
       </div>
     </div>
@@ -563,57 +570,53 @@ export default function RSVPBuscaPage() {
   {/* DESKTOP — mantido como estava */}
   <div className="hidden min-h-screen grid-cols-12 gap-2 px-6 py-24 md:grid">
     <div className="col-start-1 col-span-12 flex min-h-screen items-center justify-center">
-      <div className="grid w-full grid-cols-12 gap-2">
+      <div className="mx-auto grid w-full max-w-[1280px] grid-cols-12 gap-2">
         <div className="col-start-4 col-span-6 text-center">
           <h2 className="relative z-10 type-h1 !leading-[0.98] text-black">
-            O que nós pedimos
+            O que pedimos
             <br />
             encarecidamente
           </h2>
         </div>
 
-        <div className="relative col-start-1 col-span-12 -mt-12 grid grid-cols-12 gap-2">
+        <div className="relative col-start-1 col-span-12 mt-6 grid grid-cols-12 gap-2">
           <div className="col-start-5 col-span-4 flex justify-center">
             <Image
-              src="/pedimos.png"
+              src="/pedimos-v3.png"
               alt="Noivos dançando"
               width={520}
               height={558}
-              className="relative z-20 h-[558px] w-auto object-contain"
+              className="relative h-[558px] w-auto object-contain"
             />
           </div>
 
           <div className="col-start-2 col-span-3 row-start-1 flex flex-col justify-center gap-20 pr-8 text-right">
             <div>
               <h3 className="type-h5 text-black">
-                Cerimônia sem celulares
+                Confirme sua presença
               </h3>
 
               <p className="mt-2 type-body-2 text-black">
-                Durante a cerimônia, pedimos que os celulares fiquem no
-                silencioso e guardados. Sem fotos ou vídeos nesse momento.
+                Sua confirmação é muito importante e o convite é pessoal e intransferível. Não se esqueça de apresentar o QR code na entrada para identificação e acesso ao local.              </p>
+            </div>
+
+            <div>
+              <h3 className="type-h5 text-black">
+                Branco é a cor da noiva
+              </h3>
+
+              <p className="mt-2 type-body-2 text-black">
+                Para tornar este momento ainda mais especial, pedimos que evitem trajes em tons de branco, off-white e similares.
               </p>
             </div>
 
             <div>
               <h3 className="type-h5 text-black">
-                Cerimônia sem celulares
+                Chegue no horário
               </h3>
 
               <p className="mt-2 type-body-2 text-black">
-                Durante a cerimônia, pedimos que os celulares fiquem no
-                silencioso e guardados. Sem fotos ou vídeos nesse momento.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="type-h5 text-black">
-                Cerimônia sem celulares
-              </h3>
-
-              <p className="mt-2 type-body-2 text-black">
-                Durante a cerimônia, pedimos que os celulares fiquem no
-                silencioso e guardados. Sem fotos ou vídeos nesse momento.
+                Planeje-se para chegar com antecedência e aproveitar cada momento da celebração desde o início. Preparamos uma recepção especial com mesa de frios, welcome drinks e uma banda de jazz ao vivo para receber vocês.
               </p>
             </div>
           </div>
@@ -621,34 +624,31 @@ export default function RSVPBuscaPage() {
           <div className="col-start-9 col-span-3 row-start-1 flex flex-col justify-center gap-20 pl-8 text-left">
             <div>
               <h3 className="type-h5 text-black">
-                Cerimônia sem celulares
+                Celular no silencioso
               </h3>
 
               <p className="mt-2 type-body-2 text-black">
-                Durante a cerimônia, pedimos que os celulares fiquem no
-                silencioso e guardados. Sem fotos ou vídeos nesse momento.
+                Pedimos que mantenha o celular no silencioso e evite filmagens durante a cerimônia. Nossa equipe de fotógrafos estará presente para registrar todos os momentos.
               </p>
             </div>
 
             <div>
               <h3 className="type-h5 text-black">
-                Cerimônia sem celulares
+                Decoração
               </h3>
 
               <p className="mt-2 type-body-2 text-black">
-                Durante a cerimônia, pedimos que os celulares fiquem no
-                silencioso e guardados. Sem fotos ou vídeos nesse momento.
+                Cada detalhe foi pensado com muito carinho e faz parte da ambientação da festa. Pedimos que os itens decorativos permaneçam no local.
               </p>
             </div>
 
             <div>
               <h3 className="type-h5 text-black">
-                Cerimônia sem celulares
+                Mesa de doces
               </h3>
 
               <p className="mt-2 type-body-2 text-black">
-                Durante a cerimônia, pedimos que os celulares fiquem no
-                silencioso e guardados. Sem fotos ou vídeos nesse momento.
+                Os doces serão liberados junto com o bolo após o jantar. Pedimos que aguardem esse momento antes de se servirem.
               </p>
             </div>
           </div>
@@ -659,26 +659,22 @@ export default function RSVPBuscaPage() {
 </div>
     </section>
 
-    <section id="presentes" className="bg-[#FAF5EE]">
-<MotionSectionIntro
-  eyebrow="Presentes"
-  title="PARA CELEBRAR"
-  subtitle="A presença de vocês é suficiente. Esta lista é apenas para quem quiser nos presentear de alguma forma."
-  className="mb-[-160px] md:mb-[-280px]"
-/>
-
-<div className="grid grid-cols-12 gap-2 px-0 pb-32 md:px-6">
-    <div className="col-start-3 col-span-8 flex justify-center md:col-start-5 md:col-span-4">
-      <a
-        href="https://noivos.casar.com/juliana-e-eduardo-2026-10-31?preview_as_guest=1&_ref_=/presentes#/presentes"
-        target="_blank"
-        rel="noreferrer"
-        className="flex h-[56px] w-full items-center justify-center bg-black px-4 text-[1rem] text-white transition-opacity hover:opacity-80 md:h-[64px] md:w-auto md:px-10 md:type-h5"
-      >
-        Acessar lista de presentes
-      </a>
-    </div>
-  </div>
+<section id="presentes" className="bg-[#FAF5EE]">
+  <MotionSectionIntro
+    eyebrow="Presentes"
+    title="PARA CELEBRAR"
+    subtitle="A presença de vocês é suficiente. Esta lista é apenas para quem quiser nos presentear de alguma forma."
+    fitMobileViewport
+  >
+    <a
+      href="https://noivos.casar.com/juliana-e-eduardo-2026-10-31?preview_as_guest=1&_ref_=/presentes#/presentes"
+      target="_blank"
+      rel="noreferrer"
+      className="flex h-[56px] w-[66vw] items-center justify-center whitespace-nowrap bg-black px-4 text-[1rem] text-white transition-opacity hover:opacity-80 md:h-[64px] md:w-auto md:px-10 md:type-h5"
+    >
+      Acessar lista de presentes
+    </a>
+  </MotionSectionIntro>
 </section>
 
   </main>
