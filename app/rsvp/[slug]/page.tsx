@@ -86,10 +86,11 @@ export default async function RSVPPage({
 <section id="rsvp" className="grid min-h-screen grid-cols-12 gap-2 px-6">
   <div className="col-start-2 col-span-10 mx-auto flex w-full max-w-[1066px] items-center justify-center">
     <RSVPForm
-      convidados={convidados ?? []}
-      qrCodeId={convite.qr_code_id}
-      jaFinalizado={convite.status_convite === "rsvp_finalizado"}
-    />
+  nomeConvite={convite.nome_convite}
+  convidados={convidados ?? []}
+  qrCodeId={convite.qr_code_id}
+  jaFinalizado={convite.status_convite === "rsvp_finalizado"}
+/>
   </div>
 </section>
     </main>

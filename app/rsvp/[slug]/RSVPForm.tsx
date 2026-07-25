@@ -255,9 +255,12 @@ useEffect(() => {
                 <div className="mt-4 grid grid-cols-2 items-center gap-2 border-t border-black pt-4 md:mt-3 md:grid-cols-[1fr_120px_120px] md:pt-2">
                   <p className="col-span-2 mb-1 text-[1.1rem] text-black md:col-span-1 md:mb-0 md:type-h5">
                     Utilizaremos{" "}
-                    <span className="underline underline-offset-2">
+                    <a
+                      href="/#hospedagem"
+                      className="underline underline-offset-2 hover:no-underline"
+                    >
                       hotel e traslado
-                    </span>
+                    </a>
                   </p>
 
                   <button
