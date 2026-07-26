@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/src/lib/supabase";
 import { RSVPForm } from "./[slug]/RSVPForm";
 
 type Resultado = {
@@ -53,84 +52,54 @@ export function RsvpSearchClient() {
     setResultados([]);
     setConviteSelecionado(null);
 
-    const { data, error } = await supabase
-      .from("convidados")
-      .select("nome_exibicao, convites(slug, nome_convite)")
-      .ilike("nome_exibicao", `%${termo}%`)
-      .limit(8);
+    const response = await fetch("/api/rsvp/search", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ termo }),
+});
 
-    setBuscando(false);
+setBuscando(false);
 
-    if (error) {
-      setErro("Houve um erro na busca. Tente novamente.");
-      return;
-    }
+if (!response.ok) {
+  setErro("Houve um erro na busca. Tente novamente.");
+  return;
+}
 
-    const normalizados = (data ?? [])
-      .map((item: any) => {
-        const convite = Array.isArray(item.convites)
-          ? item.convites[0]
-          : item.convites;
+const { resultados } = await response.json();
 
-        return {
-          nome: convite?.nome_convite ?? item.nome_exibicao,
-          slug: convite?.slug,
-        };
-      })
-      .filter((item) => item.slug);
+if (!resultados.length) {
+  setErro("Nome não encontrado");
+  return;
+}
 
-    const unicos = Array.from(
-      new Map(normalizados.map((item) => [item.slug, item])).values()
-    );
-
-    if (!unicos.length) {
-      setErro("Nome não encontrado");
-      return;
-    }
-
-    setResultados(unicos);
+setResultados(resultados);
   }
 
   async function carregarConvite(slug: string) {
-    setCarregandoConvite(true);
-    setErro("");
+  setCarregandoConvite(true);
+  setErro("");
 
-    const { data: convite, error: conviteError } = await supabase
-      .from("convites")
-      .select(
-       "convite_id, qr_code_id, nome_convite, status_convite, utiliza_hotel, utiliza_traslado"
-      )
-      .eq("slug", slug)
-      .single();
+  const response = await fetch("/api/rsvp/invite", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ slug }),
+  });
 
-    if (conviteError || !convite) {
-      setCarregandoConvite(false);
-      setErro("Houve um erro ao abrir o convite. Tente novamente.");
-      return;
-    }
+  setCarregandoConvite(false);
 
-    const { data: convidados, error: convidadosError } = await supabase
-      .from("convidados")
-      .select("convidado_id, nome_exibicao, status_rsvp, confirmado")
-      .eq("convite_id", convite.convite_id)
-      .order("nome_exibicao");
-
-    setCarregandoConvite(false);
-
-    if (convidadosError) {
-      setErro("Houve um erro ao carregar os convidados. Tente novamente.");
-      return;
-    }
-
-    setConviteSelecionado({
-  qrCodeId: convite.qr_code_id,
-  nomeConvite: convite.nome_convite,
-  convidados: convidados ?? [],
-  jaFinalizado: convite.status_convite === "rsvp_finalizado",
-  utilizaHotel: convite.utiliza_hotel,
-  utilizaTraslado: convite.utiliza_traslado,
-});
+  if (!response.ok) {
+    setErro("Houve um erro ao abrir o convite. Tente novamente.");
+    return;
   }
+
+  const { convite } = await response.json();
+
+  setConviteSelecionado(convite);
+}
 
   function novaConsulta() {
     setBusca("");

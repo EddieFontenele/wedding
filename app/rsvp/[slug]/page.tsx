@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { supabase } from "@/src/lib/supabase";
+import { supabaseAdmin } from "@/src/lib/supabaseAdmin";
 import { instrumentSerif } from "@/app/fonts";
 import { RSVPForm } from "./RSVPForm";
 
@@ -10,7 +10,7 @@ export default async function RSVPPage({
 }) {
   const { slug } = await params;
 
-  const { data: convite } = await supabase
+  const { data: convite } = await supabaseAdmin
     .from("convites")
     .select("*")
     .eq("slug", slug)
@@ -20,7 +20,7 @@ export default async function RSVPPage({
     return <main className="p-6">Convite não encontrado.</main>;
   }
 
-  const { data: convidados } = await supabase
+  const { data: convidados } = await supabaseAdmin
     .from("convidados")
     .select("*")
     .eq("convite_id", convite.convite_id)

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabase";
+
 
 type Convidado = {
   convidado_id: string;
@@ -24,34 +24,34 @@ export function CheckinForm() {
   const [carregando, setCarregando] = useState(false);
 
   async function buscarConvite(codigoBusca: string) {
-    setErro("");
-    setConvite(null);
-    setConvidados([]);
-    setCarregando(true);
+  setErro("");
+  setConvite(null);
+  setConvidados([]);
+  setCarregando(true);
 
-    const { data } = await supabase
-      .from("convites")
-      .select("convite_id, nome_convite, qr_code_id")
-      .eq("qr_code_id", codigoBusca.trim())
-      .single();
+  const response = await fetch("/api/checkin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      acao: "buscar",
+      codigo: codigoBusca.trim(),
+    }),
+  });
 
-    setCarregando(false);
+  setCarregando(false);
 
-    if (!data) {
-      setErro("Convite não encontrado.");
-      return;
-    }
-
-    setConvite(data);
-
-    const { data: convidadosData } = await supabase
-      .from("convidados")
-      .select("convidado_id, nome_exibicao, confirmado, checkin_em")
-      .eq("convite_id", data.convite_id)
-      .order("nome_exibicao");
-
-    setConvidados(convidadosData ?? []);
+  if (!response.ok) {
+    setErro("Convite não encontrado.");
+    return;
   }
+
+  const data = await response.json();
+
+  setConvite(data.convite);
+  setConvidados(data.convidados);
+}
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -82,26 +82,32 @@ export function CheckinForm() {
               const jaEntrou = Boolean(convidado.checkin_em);
 
               async function confirmarEntrada(convidadoId: string) {
-                const agora = new Date().toISOString();
+  const response = await fetch("/api/checkin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      acao: "confirmar",
+      convidadoId,
+    }),
+  });
 
-                const { error } = await supabase
-                    .from("convidados")
-                    .update({ checkin_em: agora })
-                    .eq("convidado_id", convidadoId);
+  if (!response.ok) {
+    alert("Erro ao confirmar entrada.");
+    return;
+  }
 
-                if (error) {
-                    alert("Erro ao confirmar entrada.");
-                    return;
-                }
+  const data = await response.json();
 
-                setConvidados((listaAtual) =>
-                    listaAtual.map((item) =>
-                    item.convidado_id === convidadoId
-                        ? { ...item, checkin_em: agora }
-                        : item
-                    )
-                );
-                }
+  setConvidados((listaAtual) =>
+    listaAtual.map((item) =>
+      item.convidado_id === convidadoId
+        ? { ...item, checkin_em: data.checkin_em }
+        : item
+    )
+  );
+}
 
               return (
                 <div

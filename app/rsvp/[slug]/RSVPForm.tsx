@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabase";
+import { useState } from "react";
 
 type Convidado = {
   convidado_id: string;
@@ -34,37 +33,7 @@ const [utilizaHotel, setUtilizaHotel] = useState<boolean | null>(
 const [utilizaTraslado, setUtilizaTraslado] = useState<boolean | null>(
   utilizaTrasladoInicial
 );
-useEffect(() => {
-  if (
-    !jaFinalizado ||
-    (utilizaHotelInicial !== null && utilizaTrasladoInicial !== null)
-  ) {
-    return;
-  }
 
-  async function carregarHotelETrasladoSalvos() {
-    const { data, error } = await supabase
-      .from("convites")
-      .select("utiliza_hotel, utiliza_traslado")
-      .eq("qr_code_id", qrCodeId)
-      .single();
-
-    if (error) {
-      console.error("Erro ao carregar hotel e traslado:", error);
-      return;
-    }
-
-    setUtilizaHotel(data.utiliza_hotel);
-    setUtilizaTraslado(data.utiliza_traslado);
-  }
-
-  carregarHotelETrasladoSalvos();
-}, [
-  jaFinalizado,
-  qrCodeId,
-  utilizaHotelInicial,
-  utilizaTrasladoInicial,
-]);
   const [confirmacaoFinalizada, setConfirmacaoFinalizada] =
     useState(jaFinalizado);
   const [finalizando, setFinalizando] = useState(false);
@@ -103,79 +72,41 @@ useEffect(() => {
   }
 
   async function finalizarConfirmacao() {
-    if (!todosResponderam) return;
+  if (!todosResponderam) return;
 
-    setFinalizando(true);
+  setFinalizando(true);
 
-    const confirmaram = lista.filter((item) => item.confirmado === true);
-    const naoVao = lista.filter((item) => item.confirmado === false);
+  const response = await fetch("/api/rsvp/confirm", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      qrCodeId,
+      respostas: lista.map((item) => ({
+        convidado_id: item.convidado_id,
+        confirmado: item.confirmado,
+        status_rsvp: item.confirmado ? "confirmado" : "nao_vai",
+      })),
+      utilizaHotel,
+      utilizaTraslado,
+    }),
+  });
 
-    await Promise.all(
-      lista.map((item) =>
-        supabase
-          .from("convidados")
-          .update({
-            confirmado: item.confirmado,
-            status_rsvp: item.status_rsvp,
-          })
-          .eq("convidado_id", item.convidado_id)
-      )
-    );
+  setFinalizando(false);
 
-    const { count: totalConfirmados } = await supabase
-      .from("convidados")
-      .select("convidado_id", { count: "exact", head: true })
-      .eq("confirmado", true);
-
-    const detalhes = [
-      confirmaram.length
-        ? `Confirmaram:\n${confirmaram
-            .map((item) => `- ${item.nome_exibicao}`)
-            .join("\n")}`
-        : "",
-      naoVao.length
-        ? `Não vão:\n${naoVao
-            .map((item) => `- ${item.nome_exibicao}`)
-            .join("\n")}`
-        : "",
-      utilizaHotel !== null
-  ? `Hotel:\n- ${utilizaHotel ? "Sim" : "Não"}`
-  : "",
-utilizaTraslado !== null
-  ? `Traslado:\n- ${utilizaTraslado ? "Sim" : "Não"}`
-  : "",
-      `Total confirmado até agora:\n${totalConfirmados ?? 0} ${
-        totalConfirmados === 1 ? "pessoa" : "pessoas"
-      }`,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
-
-    const { error } = await supabase
-      .from("convites")
-      .update({
-        status_convite: "rsvp_finalizado",
-        rsvp_finalizado_em: new Date().toISOString(),
-        detalhes_rsvp: detalhes,
-        utiliza_hotel: utilizaHotel,
-utiliza_traslado: utilizaTraslado,
-      })
-      .eq("qr_code_id", qrCodeId);
-
-    setFinalizando(false);
-
-    if (error) {
-      alert("Houve um erro ao confirmar sua presença. Tente novamente.");
-      return;
-    }
-
-    setTrocandoTela(true);
-
-    setTimeout(() => {
-      setConfirmacaoFinalizada(true);
-      setTrocandoTela(false);
-    }, 450);
+  if (!response.ok) {
+    alert("Houve um erro ao confirmar sua presença. Tente novamente.");
+    return;
   }
+
+  setTrocandoTela(true);
+
+  setTimeout(() => {
+    setConfirmacaoFinalizada(true);
+    setTrocandoTela(false);
+  }, 450);
+}
 
   if (confirmacaoFinalizada) {
 
